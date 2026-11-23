@@ -1,0 +1,53 @@
+services:
+  mlflow:
+    build:
+      context: .
+      dockerfile: docker/mlflow.Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlflow_data:/mlflow
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # One-off training job: `docker compose run --rm train`
+  train:
+    build:
+      context: .
+      dockerfile: docker/train.Dockerfile
+    profiles: ["train"]
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    volumes:
+      - ./:/app
+    depends_on:
+      mlflow:
+        condition: service_healthy
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MODEL_NAME: telco-churn-classifier
+      MODEL_ALIAS: champion
+      MLFLOW_RETRIES: "10"
+    depends_on:
+      mlflow:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      API_URL: http://api:8000
+      MLFLOW_UI_URL: http://localhost:5000
+    depends_on:
+      - api

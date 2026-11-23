@@ -1,0 +1,5 @@
+-r requirements.txt
+-r frontend/requirements.txt
+mlflow==3.18.0
+pytest
+httpx

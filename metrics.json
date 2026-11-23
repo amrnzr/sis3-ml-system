@@ -1,0 +1,41 @@
+{
+  "experiment": "telco-churn",
+  "registered_model": "telco-churn-classifier",
+  "registered_version": 1,
+  "selected_model": "GradientBoosting",
+  "runs": {
+    "LogisticRegression": {
+      "run_id": "16982b4730d247f18db340206e0dc69a",
+      "model_uri": "models:/m-5166acd36e664a618e3dc829b8fe5350",
+      "metrics": {
+        "accuracy": 0.7367,
+        "precision": 0.5026,
+        "recall": 0.7834,
+        "f1": 0.6123,
+        "roc_auc": 0.8415
+      }
+    },
+    "RandomForest": {
+      "run_id": "2e7b3349194141148e748d4a58fb8ec6",
+      "model_uri": "models:/m-3a5968a7e7984b0f8c6dabdbab815cc3",
+      "metrics": {
+        "accuracy": 0.7651,
+        "precision": 0.5396,
+        "recall": 0.7834,
+        "f1": 0.639,
+        "roc_auc": 0.842
+      }
+    },
+    "GradientBoosting": {
+      "run_id": "cc81943c34c245e8a60b3b900e96ceeb",
+      "model_uri": "models:/m-449020f0c6ae48d68f998b1b06a8b608",
+      "metrics": {
+        "accuracy": 0.802,
+        "precision": 0.661,
+        "recall": 0.5214,
+        "f1": 0.583,
+        "roc_auc": 0.8433
+      }
+    }
+  }
+}
