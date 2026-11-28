@@ -1,8 +1,3 @@
-"""FastAPI service that serves the Telco customer-churn model.
-
-The model is loaded from the MLflow Model Registry (models:/telco-churn-classifier@champion).
-If the MLflow server is not reachable, the local copy model.joblib is used instead.
-"""
 import logging
 import os
 import time
@@ -29,7 +24,6 @@ ml_model = {}
 
 
 def load_from_registry():
-    """Load the model version that has the given alias in the MLflow Model Registry."""
     import mlflow
     import mlflow.sklearn
     from mlflow import MlflowClient
@@ -75,7 +69,6 @@ def load_model():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Load the model once, when the service starts.
     ml_model["pipeline"], ml_model["info"] = load_model()
     log.info("Model loaded: %s", ml_model["info"])
     yield
@@ -148,7 +141,6 @@ def root():
 
 @app.get("/model-info")
 def model_info():
-    """Which model (registry name, version, run) is currently served."""
     if "info" not in ml_model:
         raise HTTPException(status_code=503, detail="Model is not loaded")
     return ml_model["info"]
