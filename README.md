@@ -26,6 +26,34 @@ Dataset: [IBM Telco Customer Churn](https://github.com/IBM/telco-customer-churn-
                                             └──────────────────────┘
 ```
 
+## Architecture
+
+```
+train.py (train job)
+    ── logs, params, metrics, artifacts, registers the best model ──▶
+MLflow server :5000
+    tracking + Model Registry
+    (SQLite + artifact store)
+
+MLflow server
+    ── models:/telco-churn-classifier@champion ──▶
+FastAPI :8000
+    loads the model at startup
+
+Streamlit UI :8501
+    form + result
+        ── POST /predict ──▶
+    FastAPI :8000
+        ── prediction ──▶
+    Streamlit UI :8501
+
+FastAPI endpoints:
+    /predict
+    /model-info
+    /docs
+    /                     
+```
+
 ## Project structure
 
 ```
