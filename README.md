@@ -28,31 +28,10 @@ Dataset: [IBM Telco Customer Churn](https://github.com/IBM/telco-customer-churn-
 
 ## Architecture
 
-```
-train.py (train job)
-    ── logs, params, metrics, artifacts, registers the best model ──▶
-MLflow server :5000
-    tracking + Model Registry
-    (SQLite + artifact store)
-
-MLflow server
-    ── models:/telco-churn-classifier@champion ──▶
-FastAPI :8000
-    loads the model at startup
-
-Streamlit UI :8501
-    form + result
-        ── POST /predict ──▶
-    FastAPI :8000
-        ── prediction ──▶
-    Streamlit UI :8501
-
-FastAPI endpoints:
-    /predict
-    /model-info
-    /docs
-    /                     
-```
+- **Training (`train.py`):** Runs the training job, logs metrics and artifacts to MLflow, and registers the best model under `telco-churn-classifier@champion`.
+- **Tracking & Registry (`MLflow :5000`):** Stores experiment runs and model versions using SQLite and an artifact store.
+- **Inference API (`FastAPI :8000`):** Pulls `models:/telco-churn-classifier@champion` at startup and serves `/`, `/predict`, `/model-info`, and `/docs`.
+- **UI (`Streamlit :8501`):** Collects user input via a web form, calls `POST /predict`, and displays the prediction.
 
 ## Project structure
 
