@@ -13,7 +13,6 @@ services:
       timeout: 3s
       retries: 20
 
-  # One-off training job: `docker compose run --rm train`
   train:
     build:
       context: .
