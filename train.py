@@ -1,9 +1,3 @@
-"""Train customer-churn classifiers on the IBM Telco Customer Churn dataset,
-track every run in MLflow and register the best model in the MLflow Model Registry.
-
-Usage (an MLflow tracking server must be running, see README):
-    MLFLOW_TRACKING_URI=http://127.0.0.1:5000 python train.py
-"""
 import json
 import warnings
 import os
@@ -28,7 +22,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_PATH = BASE_DIR / "data" / "telco_customer_churn.csv"
-MODEL_PATH = BASE_DIR / "model.joblib"          # local copy of the champion (fallback for the API)
+MODEL_PATH = BASE_DIR / "model.joblib" 
 METRICS_PATH = BASE_DIR / "metrics.json"
 
 TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
@@ -39,7 +33,6 @@ RANDOM_STATE = 42
 warnings.filterwarnings("ignore", message=".*Integer columns.*")
 TEST_SIZE = 0.2
 
-# customerID is an identifier, gender is a sensitive attribute: both are not used by the model.
 DROPPED = ["customerID", "gender"]
 NUMERIC_FEATURES = ["tenure", "MonthlyCharges", "TotalCharges"]
 CATEGORICAL_FEATURES = [
@@ -110,7 +103,6 @@ def main() -> None:
             pipe = build_pipeline(clf).fit(X_train, y_train)
             metrics, cm = evaluate(pipe, X_test, y_test)
 
-            # 1) parameters: data setup + the classifier's hyperparameters
             mlflow.log_params({
                 "model_type": name,
                 "test_size": TEST_SIZE,
@@ -119,15 +111,12 @@ def main() -> None:
                 "n_train_rows": len(X_train),
             })
             mlflow.log_params({f"clf__{k}": v for k, v in clf.get_params().items()})
-            # 2) metrics
             mlflow.log_metrics(metrics)
-            # 3) artifacts: MLflow model (with signature) + plain joblib file + evaluation details
             model_info = mlflow.sklearn.log_model(
                 pipe,
                 name="model",
                 signature=infer_signature(X_train, pipe.predict(X_train)),
                 input_example=X_train.head(3),
-                # MLflow saves sklearn models with skops; these types come from our own trained models
                 skops_trusted_types=["numpy.dtype", "sklearn.tree._tree.Tree"],
             )
             with tempfile.TemporaryDirectory() as tmp:
@@ -140,7 +129,6 @@ def main() -> None:
             results[name] = {"run_id": run.info.run_id, "model_uri": model_info.model_uri, "metrics": metrics}
             print(f"{name:18s} run_id={run.info.run_id}  {metrics}")
 
-    # Register the best run (by ROC-AUC) in the Model Registry
     best_name = max(results, key=lambda n: results[n]["metrics"]["roc_auc"])
     version = mlflow.register_model(results[best_name]["model_uri"], REGISTERED_MODEL_NAME)
 
@@ -158,7 +146,6 @@ def main() -> None:
     print(f"\nRegistered {best_name} as '{REGISTERED_MODEL_NAME}' version {version.version} "
           f"(alias @{CHAMPION_ALIAS})")
 
-    # Local copy of the champion, used by the API if the MLflow server is not reachable
     joblib.dump(mlflow.sklearn.load_model(f"models:/{REGISTERED_MODEL_NAME}@{CHAMPION_ALIAS}"), MODEL_PATH)
     METRICS_PATH.write_text(json.dumps({
         "experiment": EXPERIMENT_NAME,
