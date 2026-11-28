@@ -57,10 +57,9 @@ CANDIDATES = {
 
 def load_data() -> tuple[pd.DataFrame, pd.Series]:
     df = pd.read_csv(DATA_PATH)
-    # TotalCharges is text and is blank for 11 new customers (tenure = 0) -> NaN, imputed in the pipeline
     df["TotalCharges"] = pd.to_numeric(df["TotalCharges"], errors="coerce")
     df["SeniorCitizen"] = df["SeniorCitizen"].map({0: "No", 1: "Yes"})
-    y = (df["Churn"] == "Yes").astype(int)  # 1 = customer churned
+    y = (df["Churn"] == "Yes").astype(int)
     return df[FEATURES], y
 
 
