@@ -3,8 +3,11 @@
 Continuation of Practical Task 6. The churn model from Task 6 is extended into a small ML system:
 
 **MLflow**: experiment tracking (parameters, metrics, artifacts) and the **Model Registry**;
+
 **FastAPI**: serves the model that is registered in MLflow;
+
 **Streamlit**: a frontend where a user enters customer data and gets a prediction;
+
 **Docker Compose**: runs all services together.
 
 Dataset: [IBM Telco Customer Churn](https://github.com/IBM/telco-customer-churn-on-icp4d/blob/master/data/Telco-Customer-Churn.csv),
@@ -12,26 +15,13 @@ Dataset: [IBM Telco Customer Churn](https://github.com/IBM/telco-customer-churn-
 
 ## Architecture
 
-```
-               ┌──────────────────────┐   logs params, metrics,    ┌──────────────────────────┐
-               │ train.py (train job) │ ─ artifacts, registers ──▶ │ MLflow server :5000      │
-               └──────────────────────┘   the best model           │ tracking + Model Registry│
-                                                                   │ (SQLite + artifact store)│
-                                                                   └────────────┬─────────────┘
-                                                                                │ models:/telco-churn-classifier@champion
-┌──────────────────────┐   POST /predict    ┌──────────────────────┐            │
-│ Streamlit UI :8501   │ ─────────────────▶ │ FastAPI :8000        │ ◀──────────┘ loads the model at startup
-│ form + result        │ ◀───────────────── │ /, /predict,         │
-└──────────────────────┘   prediction       │ /model-info, /docs   │
-                                            └──────────────────────┘
-```
+**Training (`train.py`):** Runs the training job, logs metrics and artifacts to MLflow, and registers the best model under `telco-churn-classifier@champion`.
 
-## Architecture
+**Tracking & Registry (`MLflow :5000`):** Stores experiment runs and model versions using SQLite and an artifact store.
 
-- **Training (`train.py`):** Runs the training job, logs metrics and artifacts to MLflow, and registers the best model under `telco-churn-classifier@champion`.
-- **Tracking & Registry (`MLflow :5000`):** Stores experiment runs and model versions using SQLite and an artifact store.
-- **Inference API (`FastAPI :8000`):** Pulls `models:/telco-churn-classifier@champion` at startup and serves `/`, `/predict`, `/model-info`, and `/docs`.
-- **UI (`Streamlit :8501`):** Collects user input via a web form, calls `POST /predict`, and displays the prediction.
+**Inference API (`FastAPI :8000`):** Pulls `models:/telco-churn-classifier@champion` at startup and serves `/`, `/predict`, `/model-info`, and `/docs`.
+
+**UI (`Streamlit :8501`):** Collects user input via a web form, calls `POST /predict`, and displays the prediction.
 
 ## Project structure
 
