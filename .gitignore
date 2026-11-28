@@ -3,6 +3,5 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
-# MLflow runs / registry (created by `python train.py`)
 mlflow_data/*
 !mlflow_data/.gitkeep
