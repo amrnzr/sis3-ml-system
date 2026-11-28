@@ -1,10 +1,4 @@
-"""Streamlit frontend for the Telco Customer Churn API.
-
-The page collects customer data, sends it to the FastAPI service (POST /predict)
-and shows the predicted churn probability.
-"""
 import os
-
 import requests
 import streamlit as st
 
@@ -23,7 +17,6 @@ def api_get(path: str):
         return None
 
 
-# ---------- Sidebar: service status and model info ----------
 with st.sidebar:
     st.header("Service status")
     root = api_get("/")
@@ -47,7 +40,6 @@ with st.sidebar:
             st.markdown(f"Local file `{info.get('path')}` (MLflow not reachable)")
     st.markdown(f"[Open MLflow UI]({MLFLOW_UI_URL})  ·  [API docs]({API_URL}/docs)")
 
-# ---------- Main form ----------
 st.title("📉 Customer Churn Predictor")
 st.write("Enter the customer's data to estimate the probability that they leave the telecom company.")
 
