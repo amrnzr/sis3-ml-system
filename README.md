@@ -2,10 +2,10 @@
 
 Continuation of Practical Task 6. The churn model from Task 6 is extended into a small ML system:
 
-- **MLflow**: experiment tracking (parameters, metrics, artifacts) and the **Model Registry**;
-- **FastAPI**: serves the model that is registered in MLflow;
-- **Streamlit**: a frontend where a user enters customer data and gets a prediction;
-- **Docker Compose**: runs all services together.
+**MLflow**: experiment tracking (parameters, metrics, artifacts) and the **Model Registry**;
+**FastAPI**: serves the model that is registered in MLflow;
+**Streamlit**: a frontend where a user enters customer data and gets a prediction;
+**Docker Compose**: runs all services together.
 
 Dataset: [IBM Telco Customer Churn](https://github.com/IBM/telco-customer-churn-on-icp4d/blob/master/data/Telco-Customer-Churn.csv),
 7,043 customers, target `Churn` (26.5% churned). `customerID` and `gender` are not used.
@@ -30,23 +30,23 @@ Dataset: [IBM Telco Customer Churn](https://github.com/IBM/telco-customer-churn-
 
 ```
 sis3-ml-system/
-├── train.py                  # trains 3 models, logs them to MLflow, registers the best one
-├── main.py                   # FastAPI app, loads the model from the MLflow Model Registry
+├── train.py        
+├── main.py                  
 ├── frontend/
-│   ├── app.py                # Streamlit frontend
+│   ├── app.py               
 │   └── requirements.txt
-├── Dockerfile                # API image
+├── Dockerfile                
 ├── docker/
-│   ├── mlflow.Dockerfile     # MLflow tracking server
-│   ├── train.Dockerfile      # training job
-│   └── frontend.Dockerfile   # Streamlit
+│   ├── mlflow.Dockerfile    
+│   ├── train.Dockerfile      
+│   └── frontend.Dockerfile   
 ├── docker-compose.yml
-├── requirements.txt          # API dependencies
-├── requirements-dev.txt      # everything for local work (API + MLflow + Streamlit + tests)
+├── requirements.txt        
+├── requirements-dev.txt      
 ├── data/telco_customer_churn.csv
-├── mlflow_data/              # MLflow database and artifacts (created when you train)
-├── model.joblib              # local copy of the champion model (fallback for the API)
-├── metrics.json              # summary of the last training
+├── mlflow_data/             
+├── model.joblib            
+├── metrics.json             
 ├── tests/test_api.py
 └── screenshots/
 ```
@@ -85,16 +85,13 @@ The run with the best ROC-AUC (GradientBoosting) is registered in the MLflow Mod
 The API loads `models:/telco-churn-classifier@champion`. To deploy another version, move the alias in the
 MLflow UI (or with `MlflowClient().set_registered_model_alias(...)`) and restart the API; no code change is needed.
 
-## Run with Docker Compose (recommended)
+## Run with Docker Compose
 
 ```bash
-# 1. Start the MLflow server
 docker compose up -d mlflow
 
-# 2. Train the models, log them to MLflow and register the best one
 docker compose run --rm train
 
-# 3. Start the API and the frontend
 docker compose up -d --build api frontend
 ```
 
