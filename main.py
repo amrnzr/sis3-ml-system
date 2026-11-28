@@ -58,7 +58,7 @@ def load_model():
             if not mlflow_is_up():
                 raise ConnectionError(f"MLflow server {MLFLOW_TRACKING_URI} is not reachable")
             return load_from_registry()
-        except Exception as exc:  # server not up yet, model not registered, ...
+        except Exception as exc:
             log.warning("MLflow load failed (attempt %d/%d): %s", attempt, MLFLOW_RETRIES, exc)
             time.sleep(2)
     if not MODEL_PATH.exists():
